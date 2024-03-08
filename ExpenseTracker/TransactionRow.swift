@@ -9,7 +9,7 @@ struct TransactionRow: View {
                 .fill(Color.iconColor.opacity(0.3))
                 .frame(width: 44, height: 44)
                 .overlay{
-                    FontIcon.text(.awesome5Solid(code: .icons), 
+                    FontIcon.text(.awesome5Solid(code: transaction.icon),
                                   fontsize: 24, color: Color.iconColor)
                 }
             
