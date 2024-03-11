@@ -1,8 +1,10 @@
 import Foundation
 import Combine
+import Collections
 
 
-typealias TransactionGroup  = [String: [Transaction]]
+typealias TransactionGroup  = OrderedDictionary <String, [Transaction]>
+typealias TransactionPrefixSum = [(String, Double)]
 
 final class TransactionListViewModel: ObservableObject{
     @Published var  transactions: [Transaction] = []
@@ -32,7 +34,7 @@ final class TransactionListViewModel: ObservableObject{
             .sink {completion in
                 switch completion{
                     case .failure(let error):
-                        print("Shit didnt work", error.localizedDescription)
+                        print("Sh*t didnt work", error.localizedDescription)
                     case .finished:
                         print("we did it")
                 }
@@ -40,6 +42,8 @@ final class TransactionListViewModel: ObservableObject{
                 self?.transactions = result
                        
             }.store(in: &cancellables)
+        
+        
     }
     
     func groupTransactionsByMonth() -> TransactionGroup{
@@ -47,5 +51,28 @@ final class TransactionListViewModel: ObservableObject{
         let groupedTransaciton = TransactionGroup(grouping: transactions){$0.month}
         
         return groupedTransaciton
+    }
+    
+    func accumalateTransactions() -> TransactionPrefixSum{
+        print("accumalatedTransactions")
+        guard !transactions.isEmpty else {return []}
+        
+        let today = "02/17/2022".dateParsed()
+        let dateInterval = Calendar.current.dateInterval(of: .month, for: today)!
+        print("dateInterval", dateInterval)
+        
+        var sum: Double = .zero
+        var cumalitveSum = TransactionPrefixSum()
+        
+        for date in stride(from: dateInterval.start, to: today, by: 60*60*24){
+            let dailyExpenses = transactions.filter{ $0.dateParsed == date && $0.isExpense}
+            let dailyTotal = dailyExpenses.reduce(0){$0 - $1.signedAmount}
+            
+            sum += dailyTotal
+            sum = sum.rounded2Digits()
+            cumalitveSum.append((date.formatted(), sum))
+            print(date.formatted(), "dailyTotal: ", dailyTotal, "sum", sum)
+        }
+        return cumalitveSum
     }
 }

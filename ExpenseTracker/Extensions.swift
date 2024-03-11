@@ -9,19 +9,31 @@ extension Color{
 }
 
 extension DateFormatter{
-    static let allNumericUK: DateFormatter = {
+    static let allNumericUSA: DateFormatter = {
         print("Initializing DateFormatter")
         let formatter = DateFormatter()
-        formatter.dateFormat = "dd/MM/yyyy"
+        formatter.dateFormat = "MM/dd/yyyy"
         
         return formatter
     }()
 }
 
 extension String{
-    func dateParsed() -> Date{
-        guard let parsedData = DateFormatter.allNumericUK.date(from: self) else {return Date()}
+    func dateParsed() -> Date {
+        guard let parsedData = DateFormatter.allNumericUSA.date(from: self) else {return Date()}
         
         return parsedData
+    }
+}
+
+extension Date {
+    func formatted() -> String{
+        return self.formatted(.dateTime.year().month().day())
+    }
+}
+
+extension Double {
+    func rounded2Digits() -> Double {
+        return(self * 100).rounded()/100
     }
 }
